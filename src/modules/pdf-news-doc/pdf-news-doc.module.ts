@@ -24,7 +24,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
   ],
   controllers: [PdfNewsDocController],
   providers: [PdfNewsDocService],
-  exports: [ElasticsearchModule],
+  exports: [ElasticsearchModule, PdfNewsDocService],
 })
 export class PdfNewsDocModule implements OnModuleInit {
   constructor(private readonly pdfNewsDocService: PdfNewsDocService) {}

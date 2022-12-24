@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { createWorker, PSM } from 'tesseract.js';
 
 @Injectable()
 export class PdfNewsDocService {

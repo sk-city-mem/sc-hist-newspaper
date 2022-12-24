@@ -27,9 +27,11 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/elasticsearch": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "pdfkit": "^0.13.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "tesseract.js": "^3.0.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
