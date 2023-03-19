@@ -1,27 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { createWorker, PSM } from 'tesseract.js';
 import { PdfNewsDocService } from '../pdf-news-doc/pdf-news-doc.service';
+import { execSync } from 'child_process';
 
 @Injectable()
-export class PdfNewsDocOrmService implements OnModuleInit {
-  private readonly tesseractWorker = createWorker();
+export class PdfNewsDocOrmService {
   constructor(private readonly pdfNewsDocService: PdfNewsDocService) {}
-  public async onModuleInit() {
-    await this.tesseractWorker.load();
-    await this.tesseractWorker.loadLanguage('tur+osd');
-    await this.tesseractWorker.initialize('tur+osd');
-    await this.tesseractWorker.setParameters({
-      tessedit_pageseg_mode: PSM.AUTO_OSD,
-      tessedit_char_whitelist: 
-    });
-  }
+  public convertPdfToReadablePdf() {
+    const output = execSync(
+      'docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" scmem-ocrmypdf ' +
+        '--tesseract-config tes.cfg --tesseract-pagesegmode 3 -l tur+osd --sidecar output.txt "26 Haziran 1997 Perşembe Textless.pdf" lastout.pdf',
+      { encoding: 'utf-8' },
+    );
 
-  public async analyseImage(){
-    const { data: { text } } = await worker.recognize('foo.jpg');
-    console.log("here")
-    const { data } = await worker.getPDF("a")
-    fs.writeFileSync("tesseract-ocr-result.pdf", Buffer.from(data));
-    console.log(text);
-    await worker.terminate();
+    console.log('output', output);
   }
 }

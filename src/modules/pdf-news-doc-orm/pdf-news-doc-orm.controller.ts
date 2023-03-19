@@ -1,4 +1,11 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
+import { PdfNewsDocOrmService } from './pdf-news-doc-orm.service';
 
 @Controller('pdf-news-doc-orm')
-export class PdfNewsDocOrmController {}
+export class PdfNewsDocOrmController {
+  constructor(private readonly pdfNewsDocOrmService: PdfNewsDocOrmService) {}
+  @Post('/convert')
+  public convert() {
+    this.pdfNewsDocOrmService.convertPdfToReadablePdf();
+  }
+}
