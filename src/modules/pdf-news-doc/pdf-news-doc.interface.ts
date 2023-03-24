@@ -13,3 +13,11 @@ export interface PostSearchBody {
   date: Date;
   name: string;
 }
+
+export class SearchQuery {
+  serialname: string;
+  content: string;
+  from: string;
+  to: string;
+  name: string;
+}

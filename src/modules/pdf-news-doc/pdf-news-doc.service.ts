@@ -1,8 +1,12 @@
+import {
+  QueryDslBoolQuery,
+  QueryDslQueryContainer,
+} from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { createWorker, PSM } from 'tesseract.js';
-import { PostSearchBody } from './pdf-news-doc.interface';
+import { PostSearchBody, SearchQuery } from './pdf-news-doc.interface';
 
 @Injectable()
 export class PdfNewsDocService {
@@ -68,16 +72,70 @@ export class PdfNewsDocService {
       },
     });
   }
-  async search(text: string) {
+  async search(searchQuery: SearchQuery) {
     const index = this.configService.get('ES_INDEX_NAME');
+    Logger.log(searchQuery.from);
+    const esSearchQuery: QueryDslQueryContainer[] = [];
+    if (searchQuery.content)
+      esSearchQuery.push({
+        multi_match: {
+          query: searchQuery.content,
+          fields: ['content'],
+          fuzziness: 'AUTO',
+        },
+      });
+    if (searchQuery.from && searchQuery.to)
+      esSearchQuery.push({
+        range: {
+          date: {
+            gte: searchQuery.from,
+            lte: searchQuery.to,
+          },
+        },
+      });
+    else if (searchQuery.from)
+      esSearchQuery.push({
+        range: {
+          date: {
+            gte: searchQuery.from,
+          },
+        },
+      });
+    else if (searchQuery.to)
+      esSearchQuery.push({
+        range: {
+          date: {
+            lte: searchQuery.to,
+          },
+        },
+      });
+
+    if (searchQuery.name)
+      esSearchQuery.push({
+        multi_match: {
+          query: searchQuery.name,
+          fields: ['name'],
+          fuzziness: 'AUTO',
+        },
+      });
+
+    if (searchQuery.serialname)
+      esSearchQuery.push({
+        multi_match: {
+          query: searchQuery.serialname,
+          fields: ['serialname'],
+          fuzziness: 'AUTO',
+        },
+      });
+
+    Logger.log(searchQuery);
+
     const body = await this.esService.search<PostSearchBody>({
       index: index,
       body: {
         query: {
-          multi_match: {
-            query: text,
-            fields: ['content'],
-            fuzziness: 'AUTO',
+          bool: {
+            must: esSearchQuery,
           },
         },
         highlight: {
