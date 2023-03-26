@@ -28,6 +28,7 @@
     "@nestjs/elasticsearch": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-fastify": "^9.3.12",
+    "aws-sdk": "^2.1343.0",
     "pdfkit": "^0.13.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

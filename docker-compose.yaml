@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  pdf_news_localstack:
+    container_name: "pdf_news_localstack"
+    image: localstack/localstack:latest
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # ext services port range
+      - "127.0.0.1:53:53"                # DNS config
+      - "127.0.0.1:53:53/udp"            # DNS config
+      - "127.0.0.1:443:443"              # LocalStack HTTPS Gateway
+    environment:
+      - SERVICES=s3
+      - S3_PROVIDER=elasticmq
+      - DATA_DIR=/tmp/localstack/data
+      - DEFAULT_REGION=eu-west-2
+      - HOST_TMP_FOLDER=/tmp/localstack
+      - DEBUG=1
+      - DISABLE_CORS_CHECK="1"
+      - AWS_ACCESS_KEY_ID=123
+      - AWS_SECRET_ACCESS_KEY=xyz
+    volumes:
+      - ../localstack-volume:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./tools/docker/aws-docker-entrypoint.sh:/etc/localstack/init/ready.d/init-aws.sh
