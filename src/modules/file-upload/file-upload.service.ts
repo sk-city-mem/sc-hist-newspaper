@@ -4,15 +4,14 @@ import { writeFileSync } from 'fs';
 
 @Injectable()
 export class FileUploadService {
+  constructor(private readonly s3: S3) {}
   async upload(file) {
     const { originalname } = file;
     const bucketS3 = 'newspaperbucket';
     await this.uploadS3(file.buffer, bucketS3, originalname);
   }
-
-  async uploadS3(file, bucket, name) {
-    const s3 = this.getS3();
-    await s3.createBucket(
+  async createBucket(bucket: string) {
+    await this.s3.createBucket(
       {
         Bucket: bucket,
       },
@@ -20,22 +19,19 @@ export class FileUploadService {
         if (err) {
           Logger.error(err);
         }
+        Logger.log('Bucket created: ', bucket);
       },
     );
-    await s3.deleteObject(
-      { Bucket: bucket, Key: '26 Haziran 1997 Perşembe Textless.pdf' },
-      function (err, data) {
-        if (err) console.log(err, err.stack); // error
-        else console.log('succerss'); // deleted
-      },
-    );
+  }
+
+  async uploadS3(file, bucket, name) {
     const params = {
       Bucket: bucket,
       Key: name,
       Body: file,
     };
     return new Promise((resolve, reject) => {
-      s3.upload(params, (err, data) => {
+      this.s3.upload(params, (err, data) => {
         if (err) {
           writeFileSync('tempout/errlog.txt', Buffer.from(err.message));
           Logger.error(err);
@@ -46,13 +42,13 @@ export class FileUploadService {
     });
   }
 
-  getS3() {
-    return new S3({
-      region: 'eu-west-1',
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      endpoint: new Endpoint('http://localhost:4566/'),
-      s3ForcePathStyle: true,
-    });
+  async deleteFormS3(bucket, key) {
+    await this.s3.deleteObject(
+      { Bucket: bucket, Key: key },
+      function (err, data) {
+        if (err) Logger.error(err); // error
+        else Logger.log(bucket, 'Succesfully deleted', key); // deleted
+      },
+    );
   }
 }

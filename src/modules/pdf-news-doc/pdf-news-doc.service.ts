@@ -58,7 +58,11 @@ export class PdfNewsDocService {
       });
     }
   */
-  public async addNewspaper(serialname: string, content: string) {
+  public async addNewspaper(
+    serialname: string,
+    content: string,
+    fileKey: string,
+  ) {
     const index = this.configService.get('ES_INDEX_NAME');
     const name = 'akşam';
     this.esService.index<PostSearchBody>({
@@ -69,6 +73,9 @@ export class PdfNewsDocService {
         content: content,
         date: this.getDateFromFileName(serialname), //TODO: convert string to date
         name: name,
+        fileURL: new URL(
+          this.configService.get('AWS_ENDPOINT') + 'newspaperbucket/' + fileKey,
+        ),
       },
     });
   }
@@ -144,7 +151,7 @@ export class PdfNewsDocService {
           },
         },
       },
-      fields: ['serialname', 'date', 'name'],
+      fields: ['serialname', 'date', 'name', 'fileURL'],
     });
     const hits = body.hits.hits;
     console.log(body.hits);

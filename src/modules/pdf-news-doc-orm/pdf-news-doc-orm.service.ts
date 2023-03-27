@@ -21,7 +21,7 @@ export class PdfNewsDocOrmService {
 
     const content = readFileSync('tempout/output.txt', 'utf8');
 
-    await this.pdfNewsDocService.addNewspaper(fileName, content);
+    await this.pdfNewsDocService.addNewspaper(fileName, content, fileName);
 
     const pdf = readFileSync('tempout/searchable.pdf');
     await this.fileUploadService.uploadS3(pdf, 'newspaperbucket', fileName);

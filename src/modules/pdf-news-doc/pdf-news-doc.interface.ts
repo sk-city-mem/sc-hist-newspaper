@@ -12,6 +12,7 @@ export interface PostSearchBody {
   content: string;
   date: Date;
   name: string;
+  fileURL: URL;
 }
 
 export class SearchQuery {
