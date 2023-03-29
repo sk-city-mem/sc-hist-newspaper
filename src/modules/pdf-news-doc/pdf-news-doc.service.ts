@@ -162,7 +162,7 @@ export class PdfNewsDocService {
   }
 
   getDateFromFileName(name: string) {
-    const tokens = name.split(' ');
+    const tokens = name.split(/_|-| /);
     Logger.log(tokens);
     return new Date(
       Number(tokens[2]),

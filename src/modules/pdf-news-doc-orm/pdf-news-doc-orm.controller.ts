@@ -37,9 +37,6 @@ export class PdfNewsDocOrmController {
     file: Express.Multer.File,
   ) {
     console.log(file);
-    this.pdfNewsDocOrmService.convertPdfToReadablePdf(
-      file.path,
-      file.originalname,
-    );
+    this.pdfNewsDocOrmService.handleOCRRequest(file.path, file.originalname);
   }
 }
