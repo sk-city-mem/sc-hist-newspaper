@@ -1,7 +1,9 @@
 import {
   Controller,
   FileTypeValidator,
+  Get,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -37,6 +39,14 @@ export class PdfNewsDocOrmController {
     file: Express.Multer.File,
   ) {
     console.log(file);
-    this.pdfNewsDocOrmService.handleOCRRequest(file.path, file.originalname);
+    return this.pdfNewsDocOrmService.handleOCRRequest(
+      file.path,
+      file.originalname,
+    );
+  }
+
+  @Get('find-position-in-queue/:id')
+  findPositionInQueue(@Param('id') id: string) {
+    return this.pdfNewsDocOrmService.findPositionInQueue(id);
   }
 }

@@ -17,6 +17,7 @@ export class PdfNewsDocOrmService {
   private mutex = new Mutex();
   private processQueue: TrackableRuntimeQueue<OCRRequest> =
     new TrackableRuntimeQueue<OCRRequest>();
+  private fileInProgress = '';
   constructor(
     private readonly pdfNewsDocService: PdfNewsDocService,
     private readonly fileUploadService: FileUploadService,
@@ -27,6 +28,7 @@ export class PdfNewsDocOrmService {
         `--tesseract-config tes.cfg --tesseract-pagesegmode 3 -l tur+osd --sidecar tempout/output.txt "${oCRRequest.filePath}" tempout/searchable.pdf`,
       { encoding: 'utf-8' },
       async (error, stdout, stderr) => {
+        this.fileInProgress = '';
         this.mutex.release();
         const content = readFileSync('tempout/output.txt', 'utf8');
 
@@ -60,12 +62,23 @@ export class PdfNewsDocOrmService {
       fileName,
     );
     this.processQueue.enqueue(newOCRRequest);
+    this.startOCRAsync();
+    return newOCRRequest;
+  }
 
+  public async startOCRAsync() {
     await this.mutex.waitForUnlock();
     await this.mutex.acquire();
     const nextOCRRequest = this.processQueue.dequeue();
+    this.fileInProgress = nextOCRRequest.id;
     Logger.log('started to ocr', nextOCRRequest);
     await this.runOCR(nextOCRRequest);
+  }
+
+  public findPositionInQueue(id: string) {
+    Logger.log(this.fileInProgress, this.processQueue);
+    if (id === this.fileInProgress) return 0;
+    return this.processQueue.findPositionInQueue(id);
   }
 }
 
@@ -105,7 +118,11 @@ class TrackableRuntimeQueue<T extends Trackable>
     return this.storage.length;
   }
 
-  exist(id: string): boolean {
-    return this.storage.some((val: T) => val.id === id);
+  findPositionInQueue(id: string): number {
+    const index = this.storage.findIndex((val: T) => val.id === id);
+    if (index < 0) {
+      return -1;
+    }
+    return this.storage.length - index;
   }
 }
