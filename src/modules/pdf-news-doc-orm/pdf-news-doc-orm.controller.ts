@@ -7,14 +7,17 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { AuthGuard } from '../auth/auth.guard';
 import { PdfNewsDocOrmService } from './pdf-news-doc-orm.service';
 const editFileName = (req, file, callback) => {
   callback(null, file.originalname);
 };
+@UseGuards(AuthGuard)
 @Controller('pdf-news-doc-orm')
 export class PdfNewsDocOrmController {
   constructor(private readonly pdfNewsDocOrmService: PdfNewsDocOrmService) {}
