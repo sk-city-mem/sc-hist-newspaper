@@ -1,3 +1,5 @@
+import { IsOptional, IsString } from "class-validator";
+
 interface PostSearchResult {
   hits: {
     total: number;
@@ -16,9 +18,19 @@ export interface PostSearchBody {
 }
 
 export class SearchQuery {
+  @IsOptional()
+  @IsString()
   serialname: string;
+  @IsOptional()
+  @IsString()
   content: string;
+  @IsOptional()
+  @IsString()
   from: string;
+  @IsOptional()
+  @IsString()
   to: string;
+  @IsOptional()
+  @IsString()
   name: string;
 }
