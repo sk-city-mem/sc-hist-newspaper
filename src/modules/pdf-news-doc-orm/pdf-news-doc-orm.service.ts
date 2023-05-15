@@ -11,7 +11,7 @@ import {
   SemaphoreInterface,
   withTimeout,
 } from 'async-mutex';
-import { fromPath } from "pdf2pic";
+import { fromPath } from 'pdf2pic';
 
 @Injectable()
 export class PdfNewsDocOrmService {
@@ -25,10 +25,14 @@ export class PdfNewsDocOrmService {
   ) {}
   public async runOCR(oCRRequest: OCRRequest) {
     await exec(
-      `docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" scmem-ocrmypdf ` +
+      `docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" scmem-ocrmypdf --force-ocr ` +
         `--tesseract-config tes.cfg --tesseract-pagesegmode 3 -l tur+osd --sidecar tempout/output.txt "${oCRRequest.filePath}" tempout/searchable.pdf`,
       { encoding: 'utf-8' },
       async (error, stdout, stderr) => {
+        Logger.error(error);
+        Logger.log(stdout);
+        Logger.error(stderr);
+
         this.fileInProgress = '';
         this.mutex.release();
         const content = readFileSync('tempout/output.txt', 'utf8');
@@ -37,6 +41,7 @@ export class PdfNewsDocOrmService {
           oCRRequest.fileName,
           content,
           oCRRequest.fileName,
+          oCRRequest.newspaperName,
         );
 
         const pdf = readFileSync('tempout/searchable.pdf');
@@ -48,23 +53,24 @@ export class PdfNewsDocOrmService {
 
         const options = {
           density: 100,
-          saveFilename: "thumbnail",
-          savePath: "tempout",
-          format: "jpg",
+          saveFilename: 'thumbnail',
+          savePath: 'tempout',
+          format: 'jpg',
           width: 600,
-          height: 800
+          height: 800,
         };
+
         const storeAsImage = fromPath('tempout/searchable.pdf', options);
         const pageToConvertAsImage = 1;
-        await storeAsImage(pageToConvertAsImage)
+        await storeAsImage(pageToConvertAsImage);
 
-        Logger.log('thumbail extracted of',oCRRequest.fileName)
+        Logger.log('thumbail extracted of', oCRRequest.fileName);
 
-        const thumbnail = readFileSync('tempout/thumbnail.1.jpg'); 
+        const thumbnail = readFileSync('tempout/thumbnail.1.jpg');
         await this.fileUploadService.uploadS3(
           thumbnail,
           'newspaperbucket',
-          oCRRequest.fileName+ '-thumbnail.jpg',
+          oCRRequest.fileName + '-thumbnail.jpg',
         );
 
         unlink(oCRRequest.filePath, (err) => {
@@ -77,11 +83,16 @@ export class PdfNewsDocOrmService {
     );
   }
 
-  public async handleOCRRequest(filePath: string, fileName: string) {
+  public async handleOCRRequest(
+    filePath: string,
+    fileName: string,
+    newspaperName: string,
+  ) {
     const newOCRRequest = new OCRRequest(
       new Date().toISOString() + fileName,
       filePath,
       fileName,
+      newspaperName,
     );
     this.processQueue.enqueue(newOCRRequest);
     this.startOCRAsync();
@@ -113,6 +124,7 @@ class OCRRequest implements Trackable {
     readonly id: string,
     readonly filePath: string,
     readonly fileName: string,
+    readonly newspaperName: string,
   ) {}
 }
 interface ITrackableRuntimeQueue<T extends Trackable> {

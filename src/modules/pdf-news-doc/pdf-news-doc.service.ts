@@ -62,9 +62,9 @@ export class PdfNewsDocService {
     serialname: string,
     content: string,
     fileKey: string,
+    name: string,
   ) {
     const index = this.configService.get('ES_INDEX_NAME');
-    const name = 'akşam';
     this.esService.index<PostSearchBody>({
       index: index,
       id: serialname + '-' + name,
@@ -138,6 +138,8 @@ export class PdfNewsDocService {
     Logger.log(searchQuery);
 
     const body = await this.esService.search<PostSearchBody>({
+      from: (searchQuery.pageNo || 0) * (searchQuery.pageSize || 25),
+      size: searchQuery.pageSize || 25,
       index: index,
       body: {
         query: {

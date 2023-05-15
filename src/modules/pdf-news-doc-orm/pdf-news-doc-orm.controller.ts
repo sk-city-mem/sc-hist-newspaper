@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   FileTypeValidator,
   Get,
@@ -14,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { AuthGuard } from '../auth/auth.guard';
 import { PdfNewsDocOrmService } from './pdf-news-doc-orm.service';
+import { NewspaperInfoDTO } from './pdf-news-doc-orm.dto';
 const editFileName = (req, file, callback) => {
   callback(null, file.originalname);
 };
@@ -40,11 +42,13 @@ export class PdfNewsDocOrmController {
       }),
     )
     file: Express.Multer.File,
+    @Body() newspaperInfoDto: NewspaperInfoDTO,
   ) {
     console.log(file);
     return this.pdfNewsDocOrmService.handleOCRRequest(
       file.path,
       file.originalname,
+      newspaperInfoDto.name.toLocaleLowerCase(),
     );
   }
 

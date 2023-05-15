@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsNumber, IsNumberString, IsOptional, IsString } from 'class-validator';
 
 interface PostSearchResult {
   hits: {
@@ -33,4 +33,10 @@ export class SearchQuery {
   @IsOptional()
   @IsString()
   name: string;
+  @IsOptional()
+  @IsNumberString()
+  pageSize: number;
+  @IsOptional()
+  @IsNumberString()
+  pageNo: number;
 }
