@@ -158,9 +158,14 @@ export class PdfNewsDocService {
     const hits = body.hits.hits;
     console.log(body.hits);
     console.log(hits.map((item) => item.highlight));
-    return hits.map((item) => {
-      return { result: item.fields, highlights: item.highlight };
+    const matches = hits.map((item) => {
+      return {
+        result: item.fields,
+        highlights: item.highlight,
+      };
     });
+
+    return { matches: matches, total: body.hits.total.valueOf() };
   }
 
   getDateFromFileName(name: string) {
