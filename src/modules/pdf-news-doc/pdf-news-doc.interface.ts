@@ -1,4 +1,10 @@
-import { IsNumber, IsNumberString, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 interface PostSearchResult {
   hits: {
@@ -15,6 +21,16 @@ export interface PostSearchBody {
   date: Date;
   name: string;
   fileURL: URL;
+}
+
+export class NewspaperUpdateDTO {
+  @IsOptional()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  date: string;
 }
 
 export class SearchQuery {

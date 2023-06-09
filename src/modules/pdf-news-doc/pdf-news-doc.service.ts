@@ -6,7 +6,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { createWorker, PSM } from 'tesseract.js';
-import { PostSearchBody, SearchQuery } from './pdf-news-doc.interface';
+import {
+  NewspaperUpdateDTO,
+  PostSearchBody,
+  SearchQuery,
+} from './pdf-news-doc.interface';
 
 @Injectable()
 export class PdfNewsDocService {
@@ -67,7 +71,7 @@ export class PdfNewsDocService {
     const index = this.configService.get('ES_INDEX_NAME');
     this.esService.index<PostSearchBody>({
       index: index,
-      id: serialname + '-' + name,
+      id: fileKey,
       body: {
         serialname: serialname,
         content: content,
@@ -152,20 +156,48 @@ export class PdfNewsDocService {
             content: {},
           },
         },
+        track_scores: true,
+        sort: [
+          '_score',
+          { date: { order: 'asc', format: 'strict_date_optional_time_nanos' } },
+        ],
       },
       fields: ['serialname', 'date', 'name', 'fileURL'],
     });
     const hits = body.hits.hits;
-    console.log(body.hits);
+    console.log('hhiiit', body.hits);
     console.log(hits.map((item) => item.highlight));
     const matches = hits.map((item) => {
       return {
         result: item.fields,
         highlights: item.highlight,
+        id: item._id,
       };
     });
 
     return { matches: matches, total: body.hits.total.valueOf() };
+  }
+
+  public async deleteById(id: string) {
+    const index = this.configService.get('ES_INDEX_NAME');
+    await this.esService.delete({ index: index, id: id });
+  }
+
+  public async findPdfIdById(id: string) {
+    const index = this.configService.get('ES_INDEX_NAME');
+    const body = await this.esService.get({ index: index, id: id });
+    console.log(body);
+  }
+
+  public async update(id: string, body: NewspaperUpdateDTO) {
+    console.log(id, body);
+    const index = this.configService.get('ES_INDEX_NAME');
+    const res = await this.esService.update({
+      index: index,
+      id: id,
+      doc: { name: body.name, date: body.date },
+    });
+    console.log(res);
   }
 
   getDateFromFileName(name: string) {

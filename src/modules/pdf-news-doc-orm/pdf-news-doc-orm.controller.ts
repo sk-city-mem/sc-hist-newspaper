@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
@@ -55,5 +56,10 @@ export class PdfNewsDocOrmController {
   @Get('find-position-in-queue/:id')
   findPositionInQueue(@Param('id') id: string) {
     return this.pdfNewsDocOrmService.findPositionInQueue(id);
+  }
+
+  @Delete(':id')
+  public delete(@Param('id') id: string) {
+    return this.pdfNewsDocOrmService.deleteById(id);
   }
 }

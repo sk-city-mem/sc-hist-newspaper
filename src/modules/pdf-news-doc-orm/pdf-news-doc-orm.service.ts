@@ -47,19 +47,17 @@ export class PdfNewsDocOrmService {
             this.mutex.release();
             const content = readFileSync('tempout/output.txt', 'utf8');
 
+            const key = oCRRequest.newspaperName + '-' + oCRRequest.fileName;
+
             await this.pdfNewsDocService.addNewspaper(
               oCRRequest.fileName,
               content,
-              oCRRequest.fileName,
+              key,
               oCRRequest.newspaperName,
             );
 
             const pdf = readFileSync('tempout/searchable.pdf');
-            await this.fileUploadService.uploadS3(
-              pdf,
-              'newspaperbucket',
-              oCRRequest.fileName,
-            );
+            await this.fileUploadService.uploadS3(pdf, 'newspaperbucket', key);
 
             const options = {
               density: 100,
@@ -74,13 +72,13 @@ export class PdfNewsDocOrmService {
             const pageToConvertAsImage = 1;
             await storeAsImage(pageToConvertAsImage);
 
-            Logger.log('thumbail extracted of', oCRRequest.fileName);
+            Logger.log('thumbail extracted of', key);
 
             const thumbnail = readFileSync('tempout/thumbnail.1.jpg');
             await this.fileUploadService.uploadS3(
               thumbnail,
               'newspaperbucket',
-              oCRRequest.fileName + '-thumbnail.jpg',
+              key + '-thumbnail.jpg',
             );
 
             unlink(oCRRequest.filePath, (err) => {
@@ -92,6 +90,15 @@ export class PdfNewsDocOrmService {
           },
         );
       },
+    );
+  }
+
+  public async deleteById(id: string) {
+    this.pdfNewsDocService.deleteById(id);
+    this.fileUploadService.deleteFromS3('newspaperbucket', id);
+    this.fileUploadService.deleteFromS3(
+      'newspaperbucket',
+      id + '-thumbnail.jpg',
     );
   }
 

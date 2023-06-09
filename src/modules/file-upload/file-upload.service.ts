@@ -42,6 +42,23 @@ export class FileUploadService {
     });
   }
 
+  async deleteFromS3(bucket, name) {
+    const params = {
+      Bucket: bucket,
+      Key: name,
+    };
+    return new Promise((resolve, reject) => {
+      this.s3.deleteObject(params, (err, data) => {
+        if (err) {
+          writeFileSync('tempout/errlog.txt', Buffer.from(err.message));
+          Logger.error(err);
+          reject(err.message);
+        }
+        resolve(data);
+      });
+    });
+  }
+
   async deleteFormS3(bucket, key) {
     await this.s3.deleteObject(
       { Bucket: bucket, Key: key },
