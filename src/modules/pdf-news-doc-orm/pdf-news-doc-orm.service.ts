@@ -12,6 +12,7 @@ import {
   withTimeout,
 } from 'async-mutex';
 import { fromPath } from 'pdf2pic';
+import { NewspaperUpdateDTO } from '../pdf-news-doc/pdf-news-doc.interface';
 
 @Injectable()
 export class PdfNewsDocOrmService {
@@ -100,6 +101,10 @@ export class PdfNewsDocOrmService {
       'newspaperbucket',
       id + '-thumbnail.jpg',
     );
+  }
+
+  public async update(id: string, updateDTO: NewspaperUpdateDTO) {
+    return this.pdfNewsDocService.update(id, updateDTO);
   }
 
   public async handleOCRRequest(

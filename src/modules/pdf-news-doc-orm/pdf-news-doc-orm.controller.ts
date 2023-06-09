@@ -7,6 +7,7 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -17,8 +18,9 @@ import { diskStorage } from 'multer';
 import { AuthGuard } from '../auth/auth.guard';
 import { PdfNewsDocOrmService } from './pdf-news-doc-orm.service';
 import { NewspaperInfoDTO } from './pdf-news-doc-orm.dto';
+import { NewspaperUpdateDTO } from '../pdf-news-doc/pdf-news-doc.interface';
 const editFileName = (req, file, callback) => {
-  callback(null, file.originalname);
+  callback(null, Buffer.from(file.originalname, 'latin1').toString('utf8'));
 };
 @UseGuards(AuthGuard)
 @Controller('pdf-news-doc-orm')
@@ -48,7 +50,7 @@ export class PdfNewsDocOrmController {
     console.log(file);
     return this.pdfNewsDocOrmService.handleOCRRequest(
       file.path,
-      file.originalname,
+      Buffer.from(file.originalname, 'latin1').toString('utf8'),
       newspaperInfoDto.name.toLocaleLowerCase(),
     );
   }
@@ -58,8 +60,15 @@ export class PdfNewsDocOrmController {
     return this.pdfNewsDocOrmService.findPositionInQueue(id);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   public delete(@Param('id') id: string) {
     return this.pdfNewsDocOrmService.deleteById(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  public update(@Param('id') id, @Body() updateDTO: NewspaperUpdateDTO) {
+    return this.pdfNewsDocOrmService.update(id, updateDTO);
   }
 }

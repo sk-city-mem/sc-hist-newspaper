@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PdfNewsDocService } from './pdf-news-doc.service';
 import { NewspaperUpdateDTO, SearchQuery } from './pdf-news-doc.interface';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('pdf-news-doc')
 export class PdfNewsDocController {
@@ -16,10 +18,5 @@ export class PdfNewsDocController {
   @Get()
   public search(@Query() SearchQuery: SearchQuery) {
     return this.pdfNewsDocService.search(SearchQuery);
-  }
-
-  @Patch(':id')
-  public update(@Param('id') id, @Body() updateDTO: NewspaperUpdateDTO) {
-    return this.pdfNewsDocService.update(id, updateDTO);
   }
 }
