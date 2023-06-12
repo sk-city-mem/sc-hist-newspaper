@@ -95,9 +95,9 @@ export class PdfNewsDocOrmService {
   }
 
   public async deleteById(id: string) {
-    this.pdfNewsDocService.deleteById(id);
-    this.fileUploadService.deleteFromS3('newspaperbucket', id);
-    this.fileUploadService.deleteFromS3(
+    await this.pdfNewsDocService.deleteById(id);
+    await this.fileUploadService.deleteFromS3('newspaperbucket', id);
+    await this.fileUploadService.deleteFromS3(
       'newspaperbucket',
       id + '-thumbnail.jpg',
     );
