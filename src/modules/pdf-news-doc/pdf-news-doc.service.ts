@@ -87,13 +87,46 @@ export class PdfNewsDocService {
     const index = this.configService.get('ES_INDEX_NAME');
     Logger.log(searchQuery.from);
     const esSearchQuery: QueryDslQueryContainer[] = [];
+    const esShouldhQuery: QueryDslQueryContainer[] = [];
+    const esMustNotQuery: QueryDslQueryContainer[] = [];
     if (searchQuery.content)
       esSearchQuery.push({
         multi_match: {
           query: searchQuery.content,
           fields: ['content'],
-          fuzziness: 'AUTO',
+          fuzziness: searchQuery.fuzzy ? 'AUTO' : 0,
         },
+      });
+
+    if (searchQuery.should)
+      searchQuery.should.forEach((val) => {
+        esShouldhQuery.push({
+          match: {
+            content: {
+              query: val,
+            },
+          },
+        });
+      });
+    if (searchQuery.must)
+      searchQuery.must.forEach((val) => {
+        esSearchQuery.push({
+          match: {
+            content: {
+              query: val,
+            },
+          },
+        });
+      });
+    if (searchQuery.mustNot)
+      searchQuery.mustNot.forEach((val) => {
+        esMustNotQuery.push({
+          match: {
+            content: {
+              query: val,
+            },
+          },
+        });
       });
     if (searchQuery.from && searchQuery.to)
       esSearchQuery.push({
@@ -149,6 +182,8 @@ export class PdfNewsDocService {
         query: {
           bool: {
             must: esSearchQuery,
+            should: esShouldhQuery,
+            must_not: esMustNotQuery,
           },
         },
         highlight: {

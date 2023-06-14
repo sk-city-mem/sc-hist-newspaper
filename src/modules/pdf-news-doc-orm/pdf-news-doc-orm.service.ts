@@ -30,7 +30,7 @@ export class PdfNewsDocOrmService {
       { encoding: 'utf-8' },
       async (error, stdout, stderr) => {
         error && Logger.error(error);
-        Logger.log(stdout);
+        Logger.log('out', stdout);
         stderr && Logger.error(stderr);
 
         await exec(
@@ -41,7 +41,7 @@ export class PdfNewsDocOrmService {
             if (error != null) {
             }
             Logger.error(error);
-            Logger.log(stdout);
+            Logger.log('out', stdout);
             Logger.error(stderr);
 
             this.fileInProgress = '';
@@ -104,16 +104,17 @@ export class PdfNewsDocOrmService {
   }
 
   public async update(id: string, updateDTO: NewspaperUpdateDTO) {
-    return this.pdfNewsDocService.update(id, updateDTO);
+    return await this.pdfNewsDocService.update(id, updateDTO);
   }
 
   public async handleOCRRequest(
     filePath: string,
+    fileId: string,
     fileName: string,
     newspaperName: string,
   ) {
     const newOCRRequest = new OCRRequest(
-      new Date().toISOString() + fileName,
+      fileId,
       filePath,
       fileName,
       newspaperName,

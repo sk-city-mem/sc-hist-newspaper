@@ -1,4 +1,7 @@
+import { Transform } from 'class-transformer';
 import {
+  IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
@@ -34,6 +37,23 @@ export class NewspaperUpdateDTO {
 }
 
 export class SearchQuery {
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  fuzzy: boolean;
+
+  @IsOptional()
+  @IsArray()
+  must: string[];
+
+  @IsOptional()
+  @IsArray()
+  mustNot: string[];
+
+  @IsOptional()
+  @IsArray()
+  should: string[];
+
   @IsOptional()
   @IsString()
   serialname: string;

@@ -19,8 +19,17 @@ import { AuthGuard } from '../auth/auth.guard';
 import { PdfNewsDocOrmService } from './pdf-news-doc-orm.service';
 import { NewspaperInfoDTO } from './pdf-news-doc-orm.dto';
 import { NewspaperUpdateDTO } from '../pdf-news-doc/pdf-news-doc.interface';
+import { v4 as uuidv4 } from 'uuid';
+
 const editFileName = (req, file, callback) => {
-  callback(null, Buffer.from(file.originalname, 'latin1').toString('utf8'));
+  callback(
+    null,
+    new Date().toISOString() +
+      '-' +
+      req.body.name +
+      '-' +
+      Buffer.from(file.originalname, 'latin1').toString('utf8'),
+  );
 };
 @UseGuards(AuthGuard)
 @Controller('pdf-news-doc-orm')
@@ -50,6 +59,7 @@ export class PdfNewsDocOrmController {
     console.log(file);
     return this.pdfNewsDocOrmService.handleOCRRequest(
       file.path,
+      file.filename,
       Buffer.from(file.originalname, 'latin1').toString('utf8'),
       newspaperInfoDto.name.toLocaleLowerCase(),
     );
