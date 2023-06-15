@@ -215,7 +215,7 @@ export class PdfNewsDocService {
 
   public async deleteById(id: string) {
     const index = this.configService.get('ES_INDEX_NAME');
-    await this.esService.delete({ index: index, id: id });
+    await this.esService.delete({ index: index, id: id, refresh: 'wait_for' });
   }
 
   public async findPdfIdById(id: string) {
@@ -229,6 +229,7 @@ export class PdfNewsDocService {
     const index = this.configService.get('ES_INDEX_NAME');
     const res = await this.esService.update({
       index: index,
+      refresh: 'wait_for',
       id: id,
       doc: { name: body.name, date: body.date },
     });

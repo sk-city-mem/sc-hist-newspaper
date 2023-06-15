@@ -104,7 +104,7 @@ export class PdfNewsDocOrmService {
   }
 
   public async update(id: string, updateDTO: NewspaperUpdateDTO) {
-    return await this.pdfNewsDocService.update(id, updateDTO);
+    await this.pdfNewsDocService.update(id, updateDTO);
   }
 
   public async handleOCRRequest(

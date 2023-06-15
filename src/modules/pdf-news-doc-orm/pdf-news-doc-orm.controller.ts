@@ -72,13 +72,13 @@ export class PdfNewsDocOrmController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  public delete(@Param('id') id: string) {
-    return this.pdfNewsDocOrmService.deleteById(id);
+  public async delete(@Param('id') id: string) {
+    return await this.pdfNewsDocOrmService.deleteById(id);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  public update(@Param('id') id, @Body() updateDTO: NewspaperUpdateDTO) {
-    return this.pdfNewsDocOrmService.update(id, updateDTO);
+  public async update(@Param('id') id, @Body() updateDTO: NewspaperUpdateDTO) {
+    return await this.pdfNewsDocOrmService.update(id, updateDTO);
   }
 }

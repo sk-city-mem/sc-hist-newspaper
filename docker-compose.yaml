@@ -114,6 +114,7 @@ services:
       - AWS_ACCESS_KEY_ID=123
       - AWS_SECRET_ACCESS_KEY=xyz
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - PERSISTENCE=1
     volumes:
       - ../localstack-volume:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
