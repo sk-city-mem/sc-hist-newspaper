@@ -78,7 +78,8 @@ export class PdfNewsDocService {
         date: this.getDateFromFileName(serialname), //TODO: convert string to date
         name: name,
         fileURL: new URL(
-          this.configService.get('AWS_ENDPOINT') + 'newspaperbucket/' + fileKey,
+          //this.configService.get('AWS_ENDPOINT') + 'newspaperbucket/' + fileKey,
+          this.configService.get('SERVER_ENDPOINT') + fileKey,
         ),
       },
     });

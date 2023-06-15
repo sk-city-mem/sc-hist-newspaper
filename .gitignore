@@ -37,3 +37,4 @@ lerna-debug.log*
 #custom
 .env
 http_ca.crt
+/resources
