@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { PdfNewsDocModule } from './modules/pdf-news-doc/pdf-news-doc.module';
 import { PdfNewsDocOrmModule } from './modules/pdf-news-doc-orm/pdf-news-doc-orm.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -12,6 +14,9 @@ import { AuthModule } from './modules/auth/auth.module';
     PdfNewsDocModule,
     PdfNewsDocOrmModule,
     AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'resources'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

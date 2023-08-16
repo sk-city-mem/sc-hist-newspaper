@@ -33,9 +33,10 @@ export class PdfNewsDocOrmService {
         Logger.log('out', stdout);
         stderr && Logger.error(stderr);
 
+        const key = oCRRequest.newspaperName + '-' + oCRRequest.fileName;
         await exec(
           `env OMP_THREAD_LIMIT=1 docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" scmem-ocrmypdf ` +
-            `--tesseract-config tes.cfg --tesseract-pagesegmode 3 -l tur+osd --sidecar tempout/output.txt tempout/textless.pdf tempout/searchable.pdf`,
+            `--tesseract-config tes.cfg --tesseract-pagesegmode 3 -l tur+osd --sidecar tempout/output.txt tempout/textless.pdf "resources/${key}"`,
           { encoding: 'utf-8' },
           async (error, stdout, stderr) => {
             if (error != null) {
@@ -56,31 +57,33 @@ export class PdfNewsDocOrmService {
               key,
               oCRRequest.newspaperName,
             );
-
+            /*
             const pdf = readFileSync('tempout/searchable.pdf');
             await this.fileUploadService.uploadS3(pdf, 'newspaperbucket', key);
-
+            */
             const options = {
               density: 100,
-              saveFilename: 'thumbnail',
-              savePath: 'tempout',
+              saveFilename: key + '-thumbnail',
+              savePath: 'resources',
               format: 'jpg',
               width: 600,
               height: 800,
             };
 
-            const storeAsImage = fromPath('tempout/searchable.pdf', options);
+            const storeAsImage = fromPath(`resources/${key}`, options);
             const pageToConvertAsImage = 1;
             await storeAsImage(pageToConvertAsImage);
 
             Logger.log('thumbail extracted of', key);
 
+            /*
             const thumbnail = readFileSync('tempout/thumbnail.1.jpg');
             await this.fileUploadService.uploadS3(
               thumbnail,
               'newspaperbucket',
               key + '-thumbnail.jpg',
             );
+            */
 
             unlink(oCRRequest.filePath, (err) => {
               if (err) {
@@ -96,11 +99,24 @@ export class PdfNewsDocOrmService {
 
   public async deleteById(id: string) {
     await this.pdfNewsDocService.deleteById(id);
+    unlink('resources/' + id, (err) => {
+      if (err) {
+        Logger.error('Delete File error.', err);
+      }
+      Logger.log('Delete File successfully.');
+    });
+    unlink('resources/' + id + '-thumbnail.1.jpg', (err) => {
+      if (err) {
+        Logger.error('Delete File error.', err);
+      }
+      Logger.log('Delete File successfully.');
+    });
+    /*
     await this.fileUploadService.deleteFromS3('newspaperbucket', id);
     await this.fileUploadService.deleteFromS3(
       'newspaperbucket',
       id + '-thumbnail.jpg',
-    );
+    );*/
   }
 
   public async update(id: string, updateDTO: NewspaperUpdateDTO) {
